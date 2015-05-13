@@ -2017,12 +2017,14 @@ CAmount CWallet::GetMinimumFee(unsigned int nTxBytes, unsigned int nConfirmTarge
     if (fPayAtLeastCustomFee && nFeeNeeded > 0 && nFeeNeeded < payTxFee.GetFeePerK())
         nFeeNeeded = payTxFee.GetFeePerK();
     // User didn't set: use -txconfirmtarget to estimate...
-    if (nFeeNeeded == 0)
-        nFeeNeeded = pool.estimateFee(nConfirmTarget).GetFee(nTxBytes);
-    // ... unless we don't have enough mempool data, in which case fall
-    // back to a hard-coded fee
-    if (nFeeNeeded == 0)
-        nFeeNeeded = minTxFee.GetFee(nTxBytes);
+    if (nFeeNeeded == 0) {
+        int estimateFoundTarget = nConfirmTarget;
+        nFeeNeeded = pool.estimateApproxFee(nConfirmTarget, &estimateFoundTarget).GetFee(nTxBytes);
+        // ... unless we don't have enough mempool data for our desired target
+        // so we make sure we're paying at least minTxFee
+        if (nFeeNeeded == 0 || (unsigned int)estimateFoundTarget > nConfirmTarget)
+            nFeeNeeded = std::max(nFeeNeeded, minTxFee.GetFee(nTxBytes));
+    }
     // prevent user from paying a non-sense fee (like 1 satoshi): 0 < fee < minRelayFee
     if (nFeeNeeded < ::minRelayTxFee.GetFee(nTxBytes))
         nFeeNeeded = ::minRelayTxFee.GetFee(nTxBytes);

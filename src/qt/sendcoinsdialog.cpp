@@ -630,12 +630,16 @@ void SendCoinsDialog::updateSmartFeeLabel()
         return;
 
     int nBlocksToConfirm = defaultConfirmTarget - ui->sliderSmartFee->value();
-    CFeeRate feeRate = mempool.estimateFee(nBlocksToConfirm);
+    int estimateFoundAtBlocks = nBlocksToConfirm;
+    CFeeRate feeRate = mempool.estimateApproxFee(nBlocksToConfirm, &estimateFoundAtBlocks);
     if (feeRate <= CFeeRate(0)) // not enough data => minfee
     {
         ui->labelSmartFee->setText(BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), CWallet::minTxFee.GetFeePerK()) + "/kB");
         ui->labelSmartFee2->show(); // (Smart fee not initialized yet. This usually takes a few blocks...)
         ui->labelFeeEstimation->setText("");
+    }
+    else if (estimateFoundAtBlocks > nBlocksToConfirm) {
+        ui->sliderSmartFee->setValue(defaultConfirmTarget - estimateFoundAtBlocks);
     }
     else
     {
