@@ -242,6 +242,12 @@ public:
     /** Return a fee estimate */
     CFeeRate estimateFee(int confTarget);
 
+    /** Estimate fee rate needed to get be included in a block within
+     *  confTarget blocks. If no answer can be given at confTarget, return an
+     *  estimate at the lowest target where one can be given.
+    */
+    CFeeRate estimateApproxFee(int confTarget, int *answerFoundAtTarget);
+
     /** Return a priority estimate */
     double estimatePriority(int confTarget);
 

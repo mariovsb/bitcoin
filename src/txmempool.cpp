@@ -324,6 +324,11 @@ CFeeRate CTxMemPool::estimateFee(int nBlocks) const
     LOCK(cs);
     return minerPolicyEstimator->estimateFee(nBlocks);
 }
+CFeeRate CTxMemPool::estimateApproxFee(int nBlocks, int *answerFoundAtBlocks) const
+{
+    LOCK(cs);
+    return minerPolicyEstimator->estimateApproxFee(nBlocks, answerFoundAtBlocks);
+}
 double CTxMemPool::estimatePriority(int nBlocks) const
 {
     LOCK(cs);

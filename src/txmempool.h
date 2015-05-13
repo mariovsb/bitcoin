@@ -153,6 +153,12 @@ public:
 
     bool lookup(uint256 hash, CTransaction& result) const;
 
+    /** Estimate fee rate needed to get into the next nBlocks
+     *  If no answer can be given at nBlocks, return an estimate
+     *  at the lowest number of blocks where one can be given
+    */
+    CFeeRate estimateApproxFee(int nBlocks, int *answerFoundAtBlocks) const;
+
     /** Estimate fee rate needed to get into the next nBlocks */
     CFeeRate estimateFee(int nBlocks) const;
 
